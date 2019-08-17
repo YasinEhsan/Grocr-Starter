@@ -61,6 +61,7 @@ struct GroceryItem {
     self.completed = completed
   }
   
+    //returns expected dictionary 
   func toAnyObject() -> Any {
     return [
       "name": name,
