@@ -69,20 +69,34 @@ class GroceryListTableViewController: UITableViewController {
 //    })
     
     // 1
-    ref.observe(.value, with: { snapshot in
-        // 2
+//    ref.observe(.value, with: { snapshot in
+//        // 2
+//        var newItems: [GroceryItem] = []
+//
+//        // 3
+//        for child in snapshot.children {
+//            // 4
+//            if let snapshot = child as? DataSnapshot,
+//                let groceryItem = GroceryItem(snapshot: snapshot) {
+//                newItems.append(groceryItem)
+//            }
+//        }
+//
+//        // 5
+//        self.items = newItems
+//        self.tableView.reloadData()
+//    })
+
+    //ORDER query
+    ref.queryOrdered(byChild: "completed").observe(.value, with: { snapshot in
         var newItems: [GroceryItem] = []
-        
-        // 3
         for child in snapshot.children {
-            // 4
             if let snapshot = child as? DataSnapshot,
                 let groceryItem = GroceryItem(snapshot: snapshot) {
                 newItems.append(groceryItem)
             }
         }
         
-        // 5
         self.items = newItems
         self.tableView.reloadData()
     })
@@ -112,6 +126,7 @@ class GroceryListTableViewController: UITableViewController {
     return true
   }
   
+    //method to delete from tvc and db
   override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
     if editingStyle == .delete {
         let groceryItem = items[indexPath.row]
@@ -120,15 +135,28 @@ class GroceryListTableViewController: UITableViewController {
   }
   
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    guard let cell = tableView.cellForRow(at: indexPath) else { return }
-    var groceryItem = items[indexPath.row]
-    let toggledCompletion = !groceryItem.completed
+//    guard let cell = tableView.cellForRow(at: indexPath) else { return }
+//    var groceryItem = items[indexPath.row]
+//    let toggledCompletion = !groceryItem.completed
+//
+//    toggleCellCheckbox(cell, isCompleted: toggledCompletion)
+//    groceryItem.completed = toggledCompletion
+//    tableView.reloadData()
     
+    // 1
+    guard let cell = tableView.cellForRow(at: indexPath) else { return }
+    // 2
+    let groceryItem = items[indexPath.row]
+    // 3
+    let toggledCompletion = !groceryItem.completed
+    // 4
     toggleCellCheckbox(cell, isCompleted: toggledCompletion)
-    groceryItem.completed = toggledCompletion
-    tableView.reloadData()
+    // 5
+    groceryItem.ref?.updateChildValues(["completed": toggledCompletion ])
+
   }
   
+    //custom design func
   func toggleCellCheckbox(_ cell: UITableViewCell, isCompleted: Bool) {
     if !isCompleted {
       cell.accessoryType = .none
